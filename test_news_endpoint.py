@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import responses
 
@@ -9,7 +10,8 @@ from news_endpoint import app
 
 class TestNewsAPI(unittest.TestCase):
     @responses.activate
-    def test_get_news_success(self):
+    @patch("newsapi.logging")
+    def test_get_news_success(self, mock_logging):
         # Define the mock response
         mock_response = news_sample_data.news_sample()
 
@@ -29,9 +31,13 @@ class TestNewsAPI(unittest.TestCase):
         # Verify that the API was called with the correct URL
         self.assertEqual(len(responses.calls), 1)
         self.assertIn(newsapi.NEWS_URL, responses.calls[0].request.url)
+        # Verify the monitoring service was called
+        self.assertEqual(mock_logging.info.call_count, 2)
+        mock_logging.error.assert_not_called()
 
     @responses.activate
-    def test_get_news_401(self):
+    @patch("newsapi.logging")
+    def test_get_news_401(self, mock_logging):
         # Define the mock response
         mock_response = news_sample_data.news_unauthorized_sample()
 
@@ -49,3 +55,5 @@ class TestNewsAPI(unittest.TestCase):
         # Verify that the API was called with the correct URL
         self.assertEqual(len(responses.calls), 1)
         self.assertIn(newsapi.NEWS_URL, responses.calls[0].request.url)
+        # Verify the monitoring service was called
+        mock_logging.error.assert_called_once()

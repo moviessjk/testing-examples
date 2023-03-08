@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -16,19 +17,17 @@ def get_news_by_country(country):
     }
 
     # Send a GET request to the News API
+    logging.info(f"Send a GET request to the News API for {country=}, {params=}")
     response = requests.get(url, params=params)
 
     # Parse the response JSON and print the headlines
     if response.status_code == 200:
-        articles = response.json()["articles"]
-        for article in articles:
-            print(article["title"])
+        logging.info(f"News API for country {country} succeed {response.json()}")
         return response.json()
     else:
-        print(response.json())
-        raise MyNewsException(
-            f"Status code {response.status_code}. Failed to retrieve headlines:"
-        )
+        msg = f"Status code {response.status_code}. Failed to retrieve headlines: {response.json()}"
+        logging.error(msg)
+        raise MyNewsException(msg)
 
 
 class MyNewsException(Exception):
