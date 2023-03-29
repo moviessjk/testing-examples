@@ -33,5 +33,3 @@ def get_news_by_country(country):
 class MyNewsException(Exception):
     pass
 
-
-print(get_news_by_country("br"))
